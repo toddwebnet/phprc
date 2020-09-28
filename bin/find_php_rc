@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+DEFAULT_PHP=${PHP_VERSION:-5.6}
+
+# Traverse up in directory tree to find containing folder
+php_find_up() {
+  local path_
+  path_="${PWD}"
+  while [[ "${path_}" != "" ]] && [[ ! -f "${path_}/${1-}" ]]; do
+    path_=${path_%/*}
+  done
+  php_echo "${path_}"
+}
+
+
+php_find_phprc() {
+  local dir
+  dir="$(php_find_up '.phprc')"
+  if [[ -e "${dir}/.phprc" ]]; then
+    php_echo "${dir}/.phprc"
+  fi
+}
+
+# Obtain php version from rc file
+php_rc_version() {
+  export PHP_RC_VERSION=''
+  local PHPRC_PATH
+  PHPRC_PATH="$(php_find_phprc)"
+  if [[ ! -e "${PHPRC_PATH}" ]]; then
+    php_echo "${DEFAULT_PHP}"
+    return 1
+  fi
+  PHP_RC_VERSION="$(command head -n 1 "${PHPRC_PATH}" | command tr -d '\r')" || command printf ''
+  if [[ -z "${PHP_RC_VERSION}" ]]; then
+    php_err "Warning: empty .phprc file found at \"${PHPRC_PATH}\""
+    return 2
+  fi
+  php_echo "${PHP_RC_VERSION}"
+}
+
+php_echo() {
+  command printf %s\\n "$*" 2>/dev/null
+}
+
+
+php_err() {
+  >&2 php_echo "$@"
+}
+
+php_rc_version

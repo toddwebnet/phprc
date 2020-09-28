@@ -1,0 +1,2 @@
+alias php='docker run --rm -it -v $(pwd):/app --mount type=bind,src=/run/host-services/ssh-auth.sock,target=/run/host-services/ssh-auth.sock -e SSH_AUTH_SOCK="/run/host-services/ssh-auth.sock" webdevops/php:$(find_php_rc) php'
+alias composer='docker run --rm -it -v $(pwd):/app -v ~/.composer:/root/.composer -v ~/.ssh/known_hosts:/root/.ssh/known_hosts --mount type=bind,src=/run/host-services/ssh-auth.sock,target=/run/host-services/ssh-auth.sock -e SSH_AUTH_SOCK="/run/host-services/ssh-auth.sock" -e PHP_MEMORY_LIMIT=-1 -w /app webdevops/php:$(find_php_rc) composer'
